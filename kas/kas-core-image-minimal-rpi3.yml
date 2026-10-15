@@ -1,0 +1,12 @@
+header:
+  version: 14
+  includes:
+    - include/local.yml
+    - include/oe.yml
+    - include/rpi.yml
+    - include/techleef.yml
+
+
+machine: raspberrypi3-64
+distro: nodistro
+target: core-image-minimal

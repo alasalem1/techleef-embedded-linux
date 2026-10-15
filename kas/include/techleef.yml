@@ -1,0 +1,11 @@
+header:
+  version: 14
+
+repos:
+  meta-techleef:
+    path: meta-techleef
+  meta-techleef-bsp:
+    path: meta-techleef-bsp
+
+  meta-techleef-distro:
+    path: meta-techleef-distro
