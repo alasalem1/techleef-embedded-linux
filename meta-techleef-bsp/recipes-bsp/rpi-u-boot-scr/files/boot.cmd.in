@@ -1,0 +1,111 @@
+# Techleef A/B boot selection for RAUC
+
+# Initialize RAUC environment only once
+if itest.s "${TECHLEEF_ENV_INITIALIZED}" == ""; then
+    echo "RAUC: initializing boot environment"
+
+    setenv BOOT_ORDER "A B"
+    setenv BOOT_A_LEFT 3
+    setenv BOOT_B_LEFT 3
+    setenv TECHLEEF_ENV_INITIALIZED 1
+
+    if saveenv; then
+        echo "RAUC: initial boot environment saved"
+    else
+        echo "ERROR: cannot save U-Boot environment"
+        exit
+    fi
+fi
+
+# Select the first bootable slot in BOOT_ORDER
+setenv selected_slot
+setenv rootpart
+
+if itest.s "${BOOT_ORDER}" == "A B"; then
+    if itest ${BOOT_A_LEFT} -gt 0; then
+        setexpr BOOT_A_LEFT ${BOOT_A_LEFT} - 1
+        setenv selected_slot A
+        setenv rootpart /dev/mmcblk0p2
+    fi
+
+    if itest.s "${selected_slot}" == ""; then
+        if itest ${BOOT_B_LEFT} -gt 0; then
+            setexpr BOOT_B_LEFT ${BOOT_B_LEFT} - 1
+            setenv selected_slot B
+            setenv rootpart /dev/mmcblk0p3
+        fi
+    fi
+else
+    if itest ${BOOT_B_LEFT} -gt 0; then
+        setexpr BOOT_B_LEFT ${BOOT_B_LEFT} - 1
+        setenv selected_slot B
+        setenv rootpart /dev/mmcblk0p3
+    fi
+
+    if itest.s "${selected_slot}" == ""; then
+        if itest ${BOOT_A_LEFT} -gt 0; then
+            setexpr BOOT_A_LEFT ${BOOT_A_LEFT} - 1
+            setenv selected_slot A
+            setenv rootpart /dev/mmcblk0p2
+        fi
+    fi
+fi
+
+# Stop if no slot is bootable
+if itest.s "${selected_slot}" == ""; then
+    echo "ERROR: no bootable RAUC slot"
+    echo "Stopping automatic boot. Check RAUC environment."
+    exit
+fi
+
+# Persist the decremented counter before booting Linux
+if saveenv; then
+    echo "RAUC: booting slot ${selected_slot}"
+else
+    echo "ERROR: cannot save boot attempts"
+    exit
+fi
+
+# Diagnose and update the live Device Tree
+echo "RAUC: FDT address = ${fdt_addr}"
+
+if fdt addr ${fdt_addr}; then
+    echo "RAUC: FDT before resize:"
+    fdt header
+
+    fdt header get fdt_size_before totalsize
+    echo "RAUC: totalsize before resize = ${fdt_size_before}"
+
+    fdt resize 0x1000
+
+    echo "RAUC: FDT after resize:"
+    fdt header
+
+    fdt header get fdt_size_after totalsize
+    echo "RAUC: totalsize after resize = ${fdt_size_after}"
+
+    if fdt get value bootargs /chosen bootargs; then
+        setenv bootargs "${bootargs} root=${rootpart} rootfstype=ext4 rootwait rauc.slot=${selected_slot} bootchooser.active"
+
+        if fdt set /chosen bootargs "${bootargs}"; then
+            echo "RAUC: kernel command line configured"
+        else
+            echo "ERROR: cannot update Device Tree bootargs"
+            exit
+        fi
+    else
+        echo "ERROR: cannot read Device Tree bootargs"
+        exit
+    fi
+else
+    echo "ERROR: cannot access Device Tree"
+    exit
+fi
+
+# Load and boot the kernel
+if fatload @@BOOT_MEDIA@@ 0:1 ${kernel_addr_r} @@KERNEL_IMAGETYPE@@; then
+    @@KERNEL_BOOTCMD@@ ${kernel_addr_r} - ${fdt_addr}
+else
+    echo "ERROR: cannot load kernel"
+    exit
+fi

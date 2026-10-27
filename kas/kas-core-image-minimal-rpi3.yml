@@ -5,8 +5,9 @@ header:
     - include/oe.yml
     - include/rpi.yml
     - include/techleef.yml
+    - include/rauc.yml
 
 
-machine: raspberrypi3-64
-distro: nodistro
+machine: techleef-rpi3w64
+distro: techleef
 target: core-image-minimal

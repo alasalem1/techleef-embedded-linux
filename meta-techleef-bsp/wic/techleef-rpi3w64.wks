@@ -1,0 +1,10 @@
+# Techleef Raspberry Pi 3 64-bit A/B OTA image
+
+# Boot partition
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --align 4096 --fixed-size 100
+
+# Root filesystem slot A
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label rootfsA --align 4096 --fixed-size 256
+
+# Root filesystem slot B
+part --source rootfs --ondisk mmcblk0 --fstype=ext4 --label rootfsB --align 4096 --fixed-size 256

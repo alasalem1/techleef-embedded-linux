@@ -1,0 +1,10 @@
+header:
+  version: 14
+
+repos:
+  meta-rauc:
+    url: https://github.com/rauc/meta-rauc.git
+    branch: scarthgap
+    path: layers/meta-rauc
+    layers:
+      .: {}

@@ -1,5 +1,21 @@
+# Python virtual environments
 *-venv/
+
+# Yocto build and downloaded layers
 build/
 layers/
 .kas_shell_history
 
+# Private Wi-Fi credentials
+wpa_supplicant-wlan0.conf
+
+# Generated disk images
+*.wic
+*.wic.bz2
+
+# U-Boot environment backups
+uboot.env.backup
+uboot.env.recovered
+
+# Temporary WIC backup
+meta-techleef-bsp/wic/techleef-rpi3w64.wks.bak

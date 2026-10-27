@@ -1,0 +1,39 @@
+diff --git a/arch/arm/boot/dts/overlays/Makefile b/arch/arm/boot/dts/overlays/Makefile
+index 367cbf4..42b08b5 100644
+--- a/arch/arm/boot/dts/overlays/Makefile
++++ b/arch/arm/boot/dts/overlays/Makefile
+@@ -46,6 +46,7 @@ dtbo-$(CONFIG_ARCH_BCM2835) += \
+ 	cutiepi-panel.dtbo \
+ 	dacberry400.dtbo \
+ 	dht11.dtbo \
++     techleef-hcsr04.dtbo \
+ 	dionaudio-kiwi.dtbo \
+ 	dionaudio-loco.dtbo \
+ 	dionaudio-loco-v2.dtbo \
+diff --git a/arch/arm/boot/dts/overlays/techleef-hcsr04-overlay.dts b/arch/arm/boot/dts/overlays/techleef-hcsr04-overlay.dts
+new file mode 100644
+index 0000000..76c424d
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/techleef-hcsr04-overlay.dts
+@@ -0,0 +1,21 @@
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/gpio/gpio.h>
++
++/ {
++    fragment@0 {
++        target-path = "/";
++
++        __overlay__ {
++            hcsr04 {
++                compatible = "techleef,hcsr04";
++
++                trig-gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
++                echo-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
++
++                status = "okay";
++            };
++        };
++    };
++};

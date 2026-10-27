@@ -13,3 +13,5 @@ repos:
     url: https://git.openembedded.org/bitbake
     branch: "2.8"
     path: layers/bitbake
+    layers:
+       .: disabled
